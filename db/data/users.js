@@ -23,4 +23,11 @@ module.exports = [
     password: "123456",
     passwordConfirm: "123456",
   },
+  {
+    name: "Cindy",
+    email: "cindy@example.com",
+    password: "123456",
+    passwordConfirm: "123456",
+    role: "admin",
+  },
 ];
