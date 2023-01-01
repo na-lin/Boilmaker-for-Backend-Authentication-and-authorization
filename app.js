@@ -1,6 +1,10 @@
 const express = require("express");
 const morgan = require("morgan");
 const app = express();
+const {
+  notFound,
+  glbalErrorHandler,
+} = require("./controllers/errorController");
 
 app.use(morgan("dev"));
 app.use(express.json());
@@ -14,32 +18,8 @@ app.get("/test", (req, res) => {
 app.use("/api/users", require("./routes/userRouter"));
 app.use("/api/products", require("./routes/productRouter"));
 
-// @desc Create new user
-// @route: POST /api/users/signup
+app.use(notFound);
 
-// @desc 404 Not Found error message
-// @route -
-// @access -
-app.use((req, res, next) => {
-  const error = new Error(`Not Found - ${req.originalUrl}`);
-  res.status(404);
-  next(error);
-});
-
-// @desc Error handler
-// @route -
-// @access -
-app.use((err, req, res, next) => {
-  const statusCode = err.status
-    ? err.status
-    : res.statusCode === 200
-    ? 500
-    : res.statusCode;
-  res.status(statusCode);
-  res.json({
-    message: err.message,
-    stack: process.env.NODE_ENV === "production" ? null : err.stack,
-  });
-});
+app.use(glbalErrorHandler);
 
 module.exports = app;
