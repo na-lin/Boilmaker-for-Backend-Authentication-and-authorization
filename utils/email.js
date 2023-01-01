@@ -16,7 +16,7 @@ const sendEmail = async (options) => {
     to: options.email,
     subject: options.subject,
     text: options.message,
-    // html: to convert message to html
+    // html: "<h1>Hello world?</h1>",
   };
 
   // 3) Actually send the email

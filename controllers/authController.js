@@ -142,9 +142,12 @@ const forgetPassword = asyncHandler(async (req, res, next) => {
   // 1. url to reset password
   const resetURL = `${req.protocol}://${req.get(
     "host"
-  )}/api/v1/users/resetPassword/${resetToken}`;
+  )}/api/users/resetPassword/${resetToken}`;
 
-  const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+  const message = `  You're receiving this e-mail because you or someone else has requested a password reset for your user account at .\n\n
+  Click the link below to reset your password: ${resetURL}\n\n
+  If you did not request a password reset you can safely ignore this email.
+  `;
 
   try {
     await sendEmail({
