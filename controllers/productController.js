@@ -9,6 +9,22 @@ const getAllProduct = asyncHandler(async (req, res, next) => {
   res.status(200).json(products);
 });
 
+// @desc Create new product
+// @route: POST /api/products/
+// @access: Private & only allow admin to create new product
+const createNewProduct = asyncHandler(async (req, res, next) => {
+  const { name, price, brand, category, countInStock } = req.body;
+  const newProduct = await Product.create({
+    name,
+    price,
+    brand,
+    category,
+    countInStock,
+  });
+  res.status(200).json(newProduct);
+});
+
 module.exports = {
   getAllProduct,
+  createNewProduct,
 };
