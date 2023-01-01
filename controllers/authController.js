@@ -174,6 +174,7 @@ const forgetPassword = asyncHandler(async (req, res, next) => {
 // @route: POST /api/users/forgotPassword
 // @access: Private
 const resetPassword = asyncHandler(async (req, res, next) => {
+  // find user by passwordResetToken
   const hashedToken = crypto
     .createHash("sha256")
     .update(req.params.token)
@@ -198,7 +199,9 @@ const resetPassword = asyncHandler(async (req, res, next) => {
   user.passwordConfirm = req.body.passwordConfirm;
   await user.save();
 
+  // exclude field related to password
   user.excludePasswordField();
+
   res.status(200).json({
     status: "success",
     token: user.generateToken(),
