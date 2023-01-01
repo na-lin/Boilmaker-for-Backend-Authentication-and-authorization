@@ -118,8 +118,8 @@ const restrictTo = (...roles) => {
   };
 };
 
-// @desc:
-// @route: -
+// @desc: send resetPassword url to user's email inbox
+// @route: POST /api/users/forgotPassword
 // @access: Private
 const forgetPassword = asyncHandler(async (req, res, next) => {
   // find the user
