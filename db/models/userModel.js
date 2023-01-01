@@ -48,7 +48,7 @@ User.addHook("beforeSave", async (user) => {
 });
 
 // @desc: update passwordChangedAt when update password
-User.addHook("beforeSave", async (user) => {
+User.addHook("beforeSave", (user) => {
   if (!user.changed("password") || user.isNewRecord) return;
   user.passwordChangedAt = Date.now() - 1000;
 });
