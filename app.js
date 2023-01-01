@@ -30,7 +30,11 @@ app.use((req, res, next) => {
 // @route -
 // @access -
 app.use((err, req, res, next) => {
-  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  const statusCode = err.status
+    ? err.status
+    : res.statusCode === 200
+    ? 500
+    : res.statusCode;
   res.status(statusCode);
   res.json({
     message: err.message,
