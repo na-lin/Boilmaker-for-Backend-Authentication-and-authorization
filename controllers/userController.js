@@ -1,6 +1,9 @@
 const asyncHandler = require("express-async-handler");
 const { User } = require("../db");
 
+// @desc: Update user's password when user is logged in
+// @route: PUT /api/users/updateMypassword
+// @access: Private
 const updatePassword = asyncHandler(async (req, res, next) => {
   const user = await User.findByPk(req.user.id);
 
