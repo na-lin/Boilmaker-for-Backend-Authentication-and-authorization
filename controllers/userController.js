@@ -38,6 +38,43 @@ const updatePassword = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc: Update user's field exclude password when user is logged in
+// @route: PUT /api/users/updateMe
+// @access: Private
+const updateMe = asyncHandler(async (req, res, next) => {
+  // check if user try to update password in this route
+  if (req.body.password || req.body.passwordConfirm) {
+    res.status(400);
+    throw new Error(
+      "This route is not for password updates. Please use /updateMypassword."
+    );
+  }
+
+  // filter out unwanted fields name that are not allowed to updated
+  const filteredBody = {
+    name: req.body.name || req.user.name,
+    email: req.body.email || req.user.email,
+  };
+
+  const [updateCount, updatedUsers] = await User.update(filteredBody, {
+    where: {
+      id: req.user.id,
+    },
+    returning: true,
+  });
+
+  const updateCurrectUser = updatedUsers[0];
+  updateCurrectUser.excludePasswordField();
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      user: updateCurrectUser,
+    },
+  });
+});
+
 module.exports = {
   updatePassword,
+  updateMe,
 };
