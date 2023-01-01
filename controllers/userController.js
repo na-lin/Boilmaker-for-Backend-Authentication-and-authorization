@@ -74,6 +74,24 @@ const updateMe = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc: delete user by set user active = false;
+// @route: DELETE /api/users/deleteMe
+// @access: Private
+const deleteMe = asyncHandler(async (req, res, next) => {
+  await User.update(
+    { active: false },
+    {
+      where: {
+        id: req.user.id,
+      },
+    }
+  );
+  res.status(204).json({
+    status: "success",
+    data: null,
+  });
+});
+
 // @desc: Get all users, exclude user who had been delete (active = false)
 // @route: GET /api/users/
 // @access: Private  & admin
@@ -94,5 +112,6 @@ const getAllUsers = asyncHandler(async (req, res, next) => {
 module.exports = {
   updatePassword,
   updateMe,
+  deleteMe,
   getAllUsers,
 };

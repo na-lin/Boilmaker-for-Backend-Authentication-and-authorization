@@ -9,6 +9,7 @@ const {
 const {
   updatePassword,
   updateMe,
+  deleteMe,
   getAllUsers,
 } = require("../controllers/userController");
 
@@ -19,6 +20,7 @@ router.post("/login", login);
 
 router.put("/updateMypassword", protect, updatePassword);
 router.put("/updateMe", protect, updateMe);
+router.delete("/deleteMe", protect, deleteMe);
 
 router.route("/").get(protect, restrictTo("admin"), getAllUsers);
 
