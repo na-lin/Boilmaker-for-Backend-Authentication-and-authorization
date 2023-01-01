@@ -2,28 +2,29 @@ const asyncHandler = require("express-async-handler");
 const { User } = require("../db");
 
 const updatePassword = asyncHandler(async (req, res, next) => {
-  const user = await User.findByPk(req.params.id);
+  const user = await User.findByPk(req.user.id);
+
+  const { currentPassword, newPassword, newPasswordConfirm } = req.body;
 
   // make sure oldpassword, new password, password confirm exist
-  const { oldPassword, newPassword, passwordConfirm } = req.body;
-  if (!oldPassword || !newPassword || !passwordConfirm) {
+  if (!currentPassword || !newPassword || !newPasswordConfirm) {
     res.status(400);
     throw new Error(
-      "Please provide privous password, new password and confirm password of new one."
+      "Please provide current password, new password and confirm password of new one."
     );
   }
 
-  if (!(await user.correctPassword(oldPassword))) {
+  // check if current password is correct
+  if (!(await user.correctPassword(currentPassword))) {
     res.status(401);
-    throw new Error("Old password is incorrect. ");
+    throw new Error("Your current password is wrong");
   }
 
-  if (req.body.newPassword !== req.body.passwordConfirm) {
-    res.status(400);
-    throw new Error("Password is not same");
-  }
+  // If everything is ok, update password
+  user.password = newPassword;
+  user.passwordConfirm = newPasswordConfirm;
 
-  user.password = req.body.newPassword;
+  // before save, hash password, update passwordChangedAt
   await user.save();
 
   user.excludePasswordField();

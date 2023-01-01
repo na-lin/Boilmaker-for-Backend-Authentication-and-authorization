@@ -48,7 +48,8 @@ User.addHook("beforeSave", async (user) => {
   user.password = await bcrypt.hash(user.password, 12);
 
   // clear passwordConfirm field
-  user.passwordConfirm = "";
+  // comment to make passwordConfirm validate correctly work
+  // user.passwordConfirm = "";
 });
 
 // @desc: update passwordChangedAt when update password
