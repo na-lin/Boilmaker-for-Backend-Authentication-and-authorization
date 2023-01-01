@@ -2,6 +2,7 @@ const db = require("../database");
 const Sequelize = require("sequelize");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 const User = db.define("user", {
   name: {
@@ -37,6 +38,8 @@ const User = db.define("user", {
   passwordChangedAt: {
     type: Sequelize.DATE,
   },
+  passwordResetToken: Sequelize.STRING,
+  passwordResetTokenExpires: Sequelize.DATE,
   active: {
     type: Sequelize.BOOLEAN,
     defaultValue: true,
@@ -108,6 +111,21 @@ User.prototype.changedPasswordAfter = function (jwtTimestamp) {
     return jwtTimestamp < changedTimestamp;
   }
   return false;
+};
+
+// @desc: generate reset token
+User.prototype.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  this.passwordResetTokenExpires = Date.now() + 10 * 60 * 1000;
+
+  // return plain resetToken to send to user's email
+  return resetToken;
 };
 
 module.exports = User;

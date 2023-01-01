@@ -4,6 +4,7 @@ const {
   login,
   protect,
   restrictTo,
+  forgetPassword,
 } = require("../controllers/authController");
 
 const {
@@ -21,6 +22,8 @@ router.get("/test", testForFilter);
 
 router.post("/signup", signup);
 router.post("/login", login);
+
+router.post("/forgotPassword", forgetPassword);
 
 router.put("/updateMypassword", protect, updatePassword);
 router.put("/updateMe", protect, updateMe);

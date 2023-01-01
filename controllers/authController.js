@@ -117,9 +117,31 @@ const restrictTo = (...roles) => {
   };
 };
 
+// @desc:
+// @route: -
+// @access: Private
+const forgetPassword = asyncHandler(async (req, res, next) => {
+  // find the user
+  const user = await User.findOne({
+    where: {
+      email: req.body.email,
+    },
+  });
+  if (!user) {
+    res.status(404);
+    throw new Error("There is no user with email address.");
+  }
+
+  const resetToken = user.createPasswordResetToken();
+  await user.save();
+
+  // send resetToken to email
+});
+
 module.exports = {
   signup,
   login,
   protect,
   restrictTo,
+  forgetPassword,
 };
