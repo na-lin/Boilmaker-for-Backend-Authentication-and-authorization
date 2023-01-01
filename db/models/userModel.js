@@ -51,6 +51,13 @@ User.prototype.excludePasswordField = function () {
   return this;
 };
 
+// @desc: generate jwt token
+User.prototype.generateToken = function () {
+  return jwt.sign({ id: this.id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES,
+  });
+};
+
 // @desc: check if passwordConfirm === password
 
 module.exports = User;
