@@ -7,6 +7,14 @@ const { User } = require("../db");
 const signup = asyncHandler(async (req, res, next) => {
   // 1. create user
   const { name, email, password, passwordConfirm } = req.body;
+
+  // check if user with this email already exist
+  const existUser = await User.findOne({ where: { email } });
+  if (existUser) {
+    res.status(401);
+    throw new Error("User already exists.");
+  }
+
   const newUser = await User.create({
     name,
     email,
