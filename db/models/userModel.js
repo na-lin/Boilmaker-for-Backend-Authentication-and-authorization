@@ -30,6 +30,9 @@ const User = db.define("user", {
       },
     },
   },
+  passwordChangedAt: {
+    type: Sequelize.DATE,
+  },
 });
 
 // @desc: hash password only if password is modified
@@ -42,6 +45,12 @@ User.addHook("beforeSave", async (user) => {
 
   // clear passwordConfirm field
   user.passwordConfirm = "";
+});
+
+// @desc: update passwordChangedAt when update password
+User.addHook("beforeSave", async (user) => {
+  if (!user.changed("password") || user.isNewRecord) return;
+  user.passwordChangedAt = Date.now() - 1000;
 });
 
 // @desc: exclude password, passwordConfirm field
@@ -61,6 +70,30 @@ User.prototype.generateToken = function () {
 // @desc: check if user entered password === password in db
 User.prototype.correctPassword = async function (candidatePwd) {
   return await bcrypt.compare(candidatePwd, this.password);
+};
+
+// @desc: find user by token, if user don't exist, or token is invalid, throw error
+User.verfiyToken = async function (token) {
+  try {
+    const decode = await jwt.verify(token, process.env.JWT_SECRET);
+    return decode;
+  } catch (err) {
+    const error = new Error("Invalid Token, Please try to login in.");
+    error.status = 401;
+    throw error;
+  }
+};
+
+// @desc: check if token was issued after password changed
+User.prototype.changedPasswordAfter = function (jwtTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+    return jwtTimestamp < changedTimestamp;
+  }
+  return false;
 };
 
 module.exports = User;
