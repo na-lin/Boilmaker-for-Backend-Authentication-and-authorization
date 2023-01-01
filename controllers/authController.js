@@ -1,6 +1,8 @@
 const asyncHandler = require("express-async-handler");
 const { User } = require("../db");
 const sendEmail = require("../utils/email");
+const crypto = require("crypto");
+const Sequelize = require("sequelize");
 
 // @desc: Create new user
 // @route: POST /api/users/signup
@@ -168,10 +170,49 @@ const forgetPassword = asyncHandler(async (req, res, next) => {
   }
 });
 
+// @desc: send resetPassword url to user's email inbox
+// @route: POST /api/users/forgotPassword
+// @access: Private
+const resetPassword = asyncHandler(async (req, res, next) => {
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    where: {
+      passwordResetToken: hashedToken,
+      passwordResetTokenExpires: {
+        [Sequelize.Op.gt]: Date.now(),
+      },
+    },
+  });
+
+  if (!user) {
+    // if token has expired
+    res.status(400);
+    throw new Error("Token is invalid or has expired");
+  }
+
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  await user.save();
+
+  user.excludePasswordField();
+  res.status(200).json({
+    status: "success",
+    token: user.generateToken(),
+    data: {
+      user,
+    },
+  });
+});
+
 module.exports = {
   signup,
   login,
   protect,
   restrictTo,
   forgetPassword,
+  resetPassword,
 };

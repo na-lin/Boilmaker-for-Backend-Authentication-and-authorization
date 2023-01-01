@@ -74,6 +74,9 @@ User.addHook("beforeFind", function (options) {
 User.prototype.excludePasswordField = function () {
   this.password = undefined;
   this.passwordConfirm = undefined;
+  this.passwordResetToken = undefined;
+  this.passwordResetTokenExpires = undefined;
+  this.passwordChangedAt = undefined;
   return this;
 };
 
@@ -122,7 +125,7 @@ User.prototype.createPasswordResetToken = function () {
     .update(resetToken)
     .digest("hex");
 
-  this.passwordResetTokenExpires = Date.now() + 10 * 60 * 1000;
+  this.passwordResetTokenExpires = Date.now() + 60 * 60 * 1000;
 
   // return plain resetToken to send to user's email
   return resetToken;
