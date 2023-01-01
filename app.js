@@ -10,6 +10,10 @@ app.get("/test", (req, res) => {
   res.send("APP for Learning Auth");
 });
 
+// @desc: router for users and prducts
+app.use("/api/users", require("./routes/userRouter"));
+app.use("/api/products", require("./routes/productRouter"));
+
 // @desc Create new user
 // @route: POST /api/users/signup
 
