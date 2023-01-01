@@ -26,8 +26,8 @@ const signup = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc: Create new user
-// @route: POST /api/users/signup
+// @desc: Login user
+// @route: POST /api/users/login
 // @access: Private
 const login = asyncHandler(async (req, res, next) => {
   // 1. read email , password from req.body
