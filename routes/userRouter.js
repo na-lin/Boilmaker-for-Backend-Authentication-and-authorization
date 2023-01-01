@@ -7,6 +7,7 @@ const {
 } = require("../controllers/authController");
 
 const {
+  testForFilter,
   updatePassword,
   updateMe,
   deleteMe,
@@ -14,6 +15,9 @@ const {
 } = require("../controllers/userController");
 
 const router = express.Router();
+
+// test for beforeFind hook to exclude active = false
+router.get("/test", testForFilter);
 
 router.post("/signup", signup);
 router.post("/login", login);

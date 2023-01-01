@@ -109,9 +109,23 @@ const getAllUsers = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc: Test for check beforeFind hook work correctly
+// @route: GET /api/users/test
+// @access: public
+// @more: poppy@example is the user who active = false.
+const testForFilter = asyncHandler(async (req, res, next) => {
+  const user = await User.findOne({ where: { email: "poppy@example.com" } });
+  res.json({
+    status: "success",
+    message: "poppy@example.com is inactive in seed data",
+    user,
+  });
+});
+
 module.exports = {
   updatePassword,
   updateMe,
   deleteMe,
   getAllUsers,
+  testForFilter,
 };
