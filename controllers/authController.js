@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const { User } = require("../db");
+const sendEmail = require("../utils/email");
 
 // @desc: Create new user
 // @route: POST /api/users/signup
@@ -136,6 +137,35 @@ const forgetPassword = asyncHandler(async (req, res, next) => {
   await user.save();
 
   // send resetToken to email
+  // 1. url to reset password
+  const resetURL = `${req.protocol}://${req.get(
+    "host"
+  )}/api/v1/users/resetPassword/${resetToken}`;
+
+  const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Your password reset token (valid for 10 min)",
+      message,
+    });
+
+    // send response to end up request-response cycle
+    res.status(200).json({
+      status: "success",
+      message: "Token sent to email!",
+    });
+  } catch (err) {
+    // what do when there is error at sendEmial -> reset both the token and the expire property
+
+    // reset token : modify & save to db
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    throw new Error("There was an error sending the email. Try again later!");
+  }
 });
 
 module.exports = {
