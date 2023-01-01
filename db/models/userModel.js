@@ -65,7 +65,6 @@ User.addHook("beforeSave", (user) => {
 // @desc: before find user, exclude user that active = false;
 User.addHook("beforeFind", function (options) {
   options.where = { ...options.where, active: true };
-  return options;
 });
 
 // @desc: exclude password, passwordConfirm field
