@@ -37,6 +37,10 @@ const User = db.define("user", {
   passwordChangedAt: {
     type: Sequelize.DATE,
   },
+  active: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: true,
+  },
 });
 
 // @desc: hash password only if password is modified
@@ -56,6 +60,11 @@ User.addHook("beforeSave", async (user) => {
 User.addHook("beforeSave", (user) => {
   if (!user.changed("password") || user.isNewRecord) return;
   user.passwordChangedAt = Date.now() - 1000;
+});
+
+// @desc: before find user, exclude user that active = false;
+User.addHook("beforeFind", function (options) {
+  options.where = { ...options.where, active: true };
 });
 
 // @desc: exclude password, passwordConfirm field

@@ -74,7 +74,25 @@ const updateMe = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc: Get all users, exclude user who had been delete (active = false)
+// @route: GET /api/users/
+// @access: Private  & admin
+const getAllUsers = asyncHandler(async (req, res, next) => {
+  const users = await User.findAll();
+
+  users.forEach((user) => user.excludePasswordField());
+
+  res.status(200).json({
+    status: "success",
+    results: users.length,
+    data: {
+      users,
+    },
+  });
+});
+
 module.exports = {
   updatePassword,
   updateMe,
+  getAllUsers,
 };
