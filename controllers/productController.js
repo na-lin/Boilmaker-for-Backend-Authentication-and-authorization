@@ -6,7 +6,13 @@ const { Product } = require("../db");
 // @access: Private
 const getAllProduct = asyncHandler(async (req, res, next) => {
   const products = await Product.findAll();
-  res.status(200).json(products);
+  res.status(200).json({
+    status: "success",
+    results: products.length,
+    data: {
+      products,
+    },
+  });
 });
 
 // @desc Create new product
