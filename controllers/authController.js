@@ -3,6 +3,7 @@ const { User } = require("../db");
 const sendEmail = require("../utils/email");
 const crypto = require("crypto");
 const Sequelize = require("sequelize");
+const AppError = require("../utils/appError");
 
 // @desc: Create new user
 // @route: POST /api/users/signup
@@ -14,8 +15,7 @@ const signup = asyncHandler(async (req, res, next) => {
   // check if user with this email already exist
   const existUser = await User.findOne({ where: { email } });
   if (existUser) {
-    res.status(401);
-    throw new Error("User already exists.");
+    throw new AppError("User already exists.", 401);
   }
 
   const newUser = await User.create({
@@ -45,8 +45,7 @@ const login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   // 2. check if email, password exist
   if (!email || !password) {
-    res.status(400); // bad request
-    throw new Error("Please provide email and password!");
+    throw new AppError("Please provide email and password!", 400);
   }
   // 3. fing user by email
   const user = await User.findOne({
@@ -56,8 +55,7 @@ const login = asyncHandler(async (req, res, next) => {
   });
   // 4. Check if user exists && password is correct
   if (!user || !(await user.correctPassword(password))) {
-    res.status(401);
-    throw new Error("Incorrect email or password");
+    throw new AppError("Incorrect email or password", 401);
   }
 
   // 5. if everything is ok, return token & user info
@@ -83,8 +81,10 @@ const protect = asyncHandler(async (req, res, next) => {
     token = req.headers.authorization.split(" ")[1];
   }
   if (!token) {
-    res.status(401);
-    throw new Error("You are not logged in! Please log in to get access.");
+    throw new AppError(
+      "You are not logged in! Please log in to get access.",
+      401
+    );
   }
   //  2) valification token, check if token is valid , auto throw error when verify is wrong
   const decode = await User.verfiyToken(token);
@@ -92,14 +92,18 @@ const protect = asyncHandler(async (req, res, next) => {
   const currentUser = await User.findByPk(decode.id);
   //  4) check if user still exists
   if (!currentUser) {
-    res.status(401);
-    throw new Error("The user belonging to this token does no longer exist.");
+    throw new AppError(
+      "The user belonging to this token does no longer exist.",
+      401
+    );
   }
 
   //  5) Check if user changed password after the token was issued
   if (currentUser.changedPasswordAfter(decode.iat)) {
-    res.status(401);
-    throw new Error("User recently changed password! Please log in again");
+    throw new AppError(
+      "User recently changed password! Please log in again",
+      401
+    );
   }
 
   //  6) Grant access to protected Route
@@ -113,8 +117,10 @@ const protect = asyncHandler(async (req, res, next) => {
 const restrictTo = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      res.status(403);
-      throw new Error("You do not have permission to perform this action");
+      throw new AppError(
+        "You do not have permission to perform this action",
+        403
+      );
     }
     next();
   };
@@ -131,8 +137,7 @@ const forgetPassword = asyncHandler(async (req, res, next) => {
     },
   });
   if (!user) {
-    res.status(404);
-    throw new Error("There is no user with email address.");
+    throw new AppError("There is no user with email address.", 404);
   }
 
   const resetToken = user.createPasswordResetToken();
@@ -169,7 +174,10 @@ const forgetPassword = asyncHandler(async (req, res, next) => {
     user.passwordResetExpires = undefined;
     await user.save();
 
-    throw new Error("There was an error sending the email. Try again later!");
+    throw new AppError(
+      "There was an error sending the email. Try again later!",
+      500
+    );
   }
 });
 
@@ -194,8 +202,7 @@ const resetPassword = asyncHandler(async (req, res, next) => {
 
   if (!user) {
     // if token has expired
-    res.status(400);
-    throw new Error("Token is invalid or has expired");
+    throw new AppError("Token is invalid or has expired", 400);
   }
 
   user.password = req.body.password;

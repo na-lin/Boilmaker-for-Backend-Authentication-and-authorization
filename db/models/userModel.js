@@ -3,6 +3,7 @@ const Sequelize = require("sequelize");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
+const AppError = require("../../utils/appError");
 
 const User = db.define("user", {
   id: {
@@ -37,7 +38,7 @@ const User = db.define("user", {
     validate: {
       confirmPassword(value) {
         if (value === this.password) return;
-        throw new Error("Passwords are not the same");
+        throw new AppError("Passwords are not the same", 400);
       },
     },
   },
@@ -104,9 +105,7 @@ User.verfiyToken = async function (token) {
     const decode = await jwt.verify(token, process.env.JWT_SECRET);
     return decode;
   } catch (err) {
-    const error = new Error("Invalid Token, Please try to login in.");
-    error.status = 401;
-    throw error;
+    throw new AppError("Invalid Token, Please try to login in again.", 401);
   }
 };
 

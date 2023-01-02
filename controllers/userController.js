@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const { User } = require("../db");
-
+const AppError = require("../utils/appError");
 // @desc: Update user's password when user is logged in
 // @route: PUT /api/users/updateMypassword
 // @access: Private
@@ -11,16 +11,15 @@ const updatePassword = asyncHandler(async (req, res, next) => {
 
   // make sure oldpassword, new password, password confirm exist
   if (!currentPassword || !newPassword || !newPasswordConfirm) {
-    res.status(400);
-    throw new Error(
-      "Please provide current password, new password and confirm password of new one."
+    throw new AppError(
+      "Please provide current password, new password and confirm password of new one.",
+      400
     );
   }
 
   // check if current password is correct
   if (!(await user.correctPassword(currentPassword))) {
-    res.status(401);
-    throw new Error("Your current password is wrong");
+    throw new AppError("Your current password is wrong", 401);
   }
 
   // If everything is ok, update password
@@ -44,9 +43,9 @@ const updatePassword = asyncHandler(async (req, res, next) => {
 const updateMe = asyncHandler(async (req, res, next) => {
   // check if user try to update password in this route
   if (req.body.password || req.body.passwordConfirm) {
-    res.status(400);
-    throw new Error(
-      "This route is not for password updates. Please use /updateMypassword."
+    throw new AppError(
+      "This route is not for password updates. Please use /updateMypassword.",
+      400
     );
   }
 
