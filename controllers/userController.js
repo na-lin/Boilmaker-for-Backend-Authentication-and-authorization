@@ -33,7 +33,9 @@ const updatePassword = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     token: user.generateToken(),
-    user,
+    data: {
+      user,
+    },
   });
 });
 
@@ -117,7 +119,7 @@ const testForFilter = asyncHandler(async (req, res, next) => {
   res.json({
     status: "success",
     message: "poppy@example.com is inactive in seed data",
-    user,
+    data: { user },
   });
 });
 
