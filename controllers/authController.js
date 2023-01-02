@@ -11,6 +11,12 @@ const AppError = require("../utils/appError");
 const signup = asyncHandler(async (req, res, next) => {
   // 1. create user
   const { name, email, password, passwordConfirm } = req.body;
+  if (!name || !email || !password || !passwordConfirm) {
+    throw new AppError(
+      "Name, email, password, passwordConfirm  are required.",
+      400
+    );
+  }
 
   // check if user with this email already exist
   const existUser = await User.findOne({ where: { email } });
