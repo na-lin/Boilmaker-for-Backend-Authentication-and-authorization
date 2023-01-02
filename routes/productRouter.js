@@ -8,7 +8,7 @@ const router = express.Router();
 
 router
   .route("/")
-  .get(protect, getAllProduct)
+  .get(getAllProduct)
   .post(protect, restrictTo("admin"), createNewProduct);
 
 module.exports = router;
